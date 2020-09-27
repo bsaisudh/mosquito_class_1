@@ -14,10 +14,14 @@ import datetime
 import argparse
 from operator import eq
 from torch.utils.data import SubsetRandomSampler
+from torch.utils.tensorboard import SummaryWriter
+
+
+writer = SummaryWriter(comment="VGG16 Pretrained weights")
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-a","--augmentation",default=1,type=int,help="Augmentation for dataset")
-parser.add_argument("-p","--pretrained",default=1,type=int,help="Enable pretrained weights from imagenet") 
+parser.add_argument("-p","--pretrained",default=1,type=int,help="Enable pretrained weights from imagenet")
 parser.add_argument("-r","--learningrate",default=0.00001,type=float,help="Learning rate for optimizer")
 parser.add_argument("-n","--numworkers",default=4,type=int,help="Num. of workers for the dataloader")
 parser.add_argument("-b","--batchsize",default=16,type=int,help="Batch size for training")
@@ -64,10 +68,9 @@ init_scale = 1.15
 # Data augmentation for training
 if args.augmentation == 1:
     data_transforms = transforms.Compose([
-            transforms.Resize((420, 314)),
             transforms.ColorJitter(brightness=0.1,contrast=0.2,saturation=0.2,hue=0.1),
             transforms.RandomAffine(360,scale=[init_scale-0.15,init_scale+0.15]),
-            transforms.CenterCrop(224),
+            transforms.Resize((244, 244)),
             transforms.ToTensor(),
     ])
 else:
@@ -109,6 +112,7 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs=20):
         for param_group in optimizer.param_groups:
             # Current learning rate ...
             print("Learning rate : ",param_group['lr'])
+            writer.add_scalar('LearningRate', param_group['lr'], epoch)
 
         epoch_val_sum = 0
 
@@ -153,10 +157,14 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs=20):
                 if(f == i):
                     print('Validation({}) - Loss: {:.4f}, Acc: {:.4f}'.format(
                         f, epoch_loss, epoch_acc))
+                    writer.add_scalar(f'Validation{f}/Loss', epoch_loss, epoch)
+                    writer.add_scalar(f'Validation{f}/Accuracy', epoch_acc, epoch)
                     epoch_val_sum = epoch_val_sum + epoch_acc
                 else:
                     print('Training({}) - Loss: {:.4f}, Acc: {:.4f}'.format(
                         f, epoch_loss, epoch_acc))
+                    writer.add_scalar(f'Training{f}/Loss', epoch_loss, epoch)
+                    writer.add_scalar(f'Training{f}/Accuracy', epoch_acc, epoch)
                 # deep copy the model
 
         epoch_end = time.time()
@@ -173,8 +181,9 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs=20):
         if epoch_val > best_acc:
             best_acc = epoch_val
             best_model_wts = copy.deepcopy(model.state_dict())
-        print("Epoch {} accuracy : {}".format(epoch,epoch_val))
+        print("Epoch {} accuracy : {}".format(epoch, epoch_val))
         log.write("{}\n".format(epoch_val))
+        writer.add_scalar(f'Epoch/Accuracy', epoch_val, epoch)
 
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(
@@ -249,3 +258,8 @@ model_ft = train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler,
 torch.save(model_ft.state_dict(), pth_file)
 print("Model state saved to : " + pth_file)
 print("-"*20)
+
+# f1 score harmonic mean why not arithmatc mean captures edge cases
+# alex net
+# proxemo
+# edge computing

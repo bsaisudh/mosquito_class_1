@@ -9,11 +9,12 @@ import argparse
 from PIL import Image
 from torch import nn
 from torchvision import models, transforms, utils
+from torch.utils.tensorboard import SummaryWriter
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-q","--quiet",default=1,type=int,help="If enabled(1), the tester only shows the matrix and accuracy.")
 parser.add_argument("-m","--model",default="vgg16",type=str,help="Model name")
-parser.add_argument("-w","--weight",default="./Weights/vgg16_aug_pt.pth")
+parser.add_argument("-w","--weight",default="./Weights/vgg16_aug_pt_run2.pth")
 parser.add_argument("-t","--testset",default="./Datasets/i_Test/",type=str,help="Location of testing dataset")
 args = parser.parse_args()
 
