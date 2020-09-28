@@ -1,0 +1,25 @@
+GENERAL:
+  MODE: "Train"
+  OUT_PATH: "output"
+  DEVICE: "cuda:0" #cpu
+  COMMENT: "Test"
+
+
+MODEL: 
+  TYPE: "cnn"
+  PRETRAINED: 1
+
+DATA_PARAM:
+  TEST: "Datasets/i_Test"
+  TRAIN: "Datasets/i_TrainVal"
+  AUGMENTATION: 1
+  NUM_WORKERS: 4
+  BATCH_SIZE: 16
+
+TRAIN_PARAM:
+  EPOCH: 200
+  TEST_INTERVAL: 10
+  LR: 0.00001
+  LR_DECAY: 0.75
+  STEP_SIZE: 15
+  PRETRAIN_MODEL: ""

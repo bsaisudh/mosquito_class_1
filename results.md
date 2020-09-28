@@ -48,3 +48,7 @@ Test Accuracy : 87.78%
 Elapsed time : 2.46 [sec]
 ==================================================
 ```
+
+### Run 3
+
+- wihout center crop
