@@ -10,7 +10,7 @@ import numpy as np
 class CNN(nn.Module):
     """CNN emotion classification module."""
 
-    def __init__(self, n_classes, in_channels, num_groups, dropout=0.2, layer_channels=[32, 64, 16]):
+    def __init__(self, dropout=0.2, layer_channels=[32, 64, 16]):
         """Constructor
 
         Args:
@@ -22,11 +22,10 @@ class CNN(nn.Module):
                                              Defaults to [32, 64, 16].
         """
         super().__init__()
-        self.in_channels = in_channels
-        self.n_groups = num_groups
+        self.in_channels = 3
         self.layer_channels = layer_channels
         self.dropout = dropout
-        self.num_classes = n_classes
+        self.num_classes = 6
         self.build_net()
 
     def _gen_layer_name(self, stage, layer_type, layer_num=''):
@@ -41,21 +40,21 @@ class CNN(nn.Module):
                             self.layer_channels[0],
                             (3, 3))
         conv1_1 = nn.Conv2d(self.layer_channels[0],
-                            self.layer_channels[0]*self.n_groups,
+                            self.layer_channels[0],
                             (3, 3))
-        conv1_2 = nn.Conv2d(self.layer_channels[0]*self.n_groups,
-                            self.layer_channels[0]*self.n_groups,
-                            (3, 3), groups=self.n_groups)
-        bn1 = nn.BatchNorm2d(self.layer_channels[0]*self.n_groups)
+        conv1_2 = nn.Conv2d(self.layer_channels[0],
+                            self.layer_channels[0],
+                            (3, 3))
+        bn1 = nn.BatchNorm2d(self.layer_channels[0])
 
-        conv2_1 = nn.Conv2d(self.layer_channels[0]*self.n_groups,
-                            self.layer_channels[1]*self.n_groups,
-                            (3, 3), groups=self.n_groups)
+        conv2_1 = nn.Conv2d(self.layer_channels[0],
+                            self.layer_channels[1],
+                            (3, 3))
 
-        conv2_2 = nn.Conv2d(self.layer_channels[1]*self.n_groups,
-                            self.layer_channels[1]*self.n_groups,
-                            (3, 3), groups=self.n_groups)
-        bn2 = nn.BatchNorm2d(self.layer_channels[1]*self.n_groups)
+        conv2_2 = nn.Conv2d(self.layer_channels[1],
+                            self.layer_channels[1],
+                            (3, 3))
+        bn2 = nn.BatchNorm2d(self.layer_channels[1])
 
         max_pool = nn.MaxPool2d((3, 3), (2, 2))
 
@@ -85,10 +84,10 @@ class CNN(nn.Module):
             (self._gen_layer_name(2, 'drop'), dropout)
         ]))
 
-        conv3_1 = nn.Conv2d(self.layer_channels[1]*self.n_groups,
-                            self.layer_channels[2]*self.n_groups,
-                            (3, 3), groups=self.n_groups)
-        conv3_2 = nn.Conv2d(self.layer_channels[2]*self.n_groups,
+        conv3_1 = nn.Conv2d(self.layer_channels[1],
+                            self.layer_channels[2],
+                            (3, 3))
+        conv3_2 = nn.Conv2d(self.layer_channels[2],
                             1, (3, 3), stride=(2, 2))
 
         self.final_layers = nn.Sequential(OrderedDict([
@@ -98,6 +97,12 @@ class CNN(nn.Module):
             (self._gen_layer_name(3, 'relu', 2), nn.ReLU())
         ]))
         self.softmax = nn.Softmax(2)
+        
+        self.classifier = nn.Sequential(OrderedDict([
+            # (self._gen_layer_name(4, 'drop', 1), dropout),
+            (self._gen_layer_name(4, 'linear', 1), nn.Linear(16,6)),
+            (self._gen_layer_name(4, 'relu', 1), nn.ReLU())
+        ]))
 
     def forward(self, input_tensor, apply_sfmax=False):
         """Forward pass
@@ -115,21 +120,15 @@ class CNN(nn.Module):
         first_conv = self.conv_stage_1(input_tensor)
         second_conv = self.conv_stage_2(first_conv)
         final_layers = self.final_layers(second_conv)
+        final_layers = torch.flatten(final_layers, 1)
+        classifier = self.classifier(final_layers)
 
-        if apply_sfmax:
-            final_layers = self.softmax(
-                final_layers.view(*final_layers.size()[:2], -1))
-            final_layers = final_layers.squeeze(1)
-        else:
-            final_layers = final_layers.view(
-                *final_layers.size()[:2], -1).squeeze(1)
-
-        return final_layers
+        return classifier
 
 
 if __name__ == "__main__":
-    cnn = CNN(4, 3, 8, 0.2)
-    image = torch.rand(1, 3, 244, 244)
+    cnn = CNN()
+    image = torch.rand(1, 3, 244, 244).cuda()
     print(summary.summary(cnn, (3, 244, 244)))
     a = cnn(image)
     print(sum([param.nelement() for param in cnn.parameters()]))

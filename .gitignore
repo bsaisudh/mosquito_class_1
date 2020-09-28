@@ -12,3 +12,5 @@ runs/
 __pycache__/
 
 vgg16_aug_pt_run2_mis/
+
+output/
