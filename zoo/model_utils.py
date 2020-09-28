@@ -16,6 +16,12 @@ def generate_model(model_args, device):
         n_features = model.classifier[6].in_features
         model.classifier[6] = torch.nn.Linear(n_features, 6)
 
+    elif model_args["TYPE"] == "vgg11":
+        model = models.vgg11(pretrained=pt)
+        model.to(device)
+        n_features = model.classifier[6].in_features
+        model.classifier[6] = torch.nn.Linear(n_features, 6)
+
     elif model_args["TYPE"] == "cnn":
         model = CNN()
         model.to(device)
