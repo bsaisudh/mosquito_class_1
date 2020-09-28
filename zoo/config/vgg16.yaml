@@ -6,7 +6,7 @@ GENERAL:
 
 
 MODEL: 
-  TYPE: "vgg11"
+  TYPE: "vgg16"
   PRETRAINED: 1
 
 DATA_PARAM:
