@@ -8,7 +8,6 @@ from mosquito_class_1.utils.torch_utils import (find_all_substr,
                                                 SummaryStatistics)
 from mosquito_class_1.modules.loader import DataLoader
 from torch.utils.tensorboard import SummaryWriter
-import torchlight
 from torch.optim import lr_scheduler
 import torch.optim as optim
 import torch.nn as nn
