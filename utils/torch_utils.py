@@ -158,8 +158,11 @@ class SummaryStatistics(object):
         avg_acc = np.nanmean(acc_per_class)
         avg_f1 = 2 * avg_precision * avg_recall / (avg_precision + avg_recall)
 
+        conf_matrix_percent = (conf_matrix / np.sum(conf_matrix, axis=1))*100
+
         result = {
             'conf_matrix':  conf_matrix,
+            'conf_matrix_percent': conf_matrix_percent,
             'stats_per_class':  {
                 'class_precision':  precision_per_class,
                 'class_recall': recall_per_class,

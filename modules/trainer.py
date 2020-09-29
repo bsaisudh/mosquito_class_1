@@ -280,17 +280,20 @@ class Trainer():
         result_summary = self.summary_statistics.get_metrics()
 
         file_name = 'test_result_' + str(self.epoch)
-        save_file = os.path.join(self.out_dir.result_dir, file_name+'.pkl')
+        
         save_file_summary = os.path.join(
             self.out_dir.result_dir, file_name + '_summary.txt')
-        save_file_summary_yaml = os.path.join(
-            self.out_dir.result_dir, file_name + '_summary.yaml')
+        
         save_file_confusion = os.path.join(
             self.out_dir.result_dir, file_name + '_confusion.csv')
+        
+        prec = np.get_printoptions()['precision']
+        np.set_printoptions(precision=2)
         np.savetxt(save_file_confusion,
                    result_summary['conf_matrix'], delimiter=',')
         with open(save_file_summary, 'w') as handle:
             handle.write(pprint.pformat(result_summary))
+        np.set_printoptions(precision=prec)
 
         self.writer.add_hparams({'lr': self.train_args["LR"],
                                  'bsize': self.data_args["BATCH_SIZE"],
