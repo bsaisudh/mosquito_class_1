@@ -291,3 +291,13 @@ class Trainer():
                    result_summary['conf_matrix'], delimiter=',')
         with open(save_file_summary, 'w') as handle:
             handle.write(pprint.pformat(result_summary))
+
+        self.writer.add_hparams({'lr': self.train_args["LR"],
+                                 'bsize': self.data_args["BATCH_SIZE"],
+                                 'lr_decay': self.train_args['LR_DECAY']
+                                 },
+                                {'hparam/avg_precision': result_summary['avg_stats']['avg_precision'],
+                                 'hparam/avg_recall': result_summary['avg_stats']['avg_recall'],
+                                 'hparam/avg_accuracy': result_summary['avg_stats']['avg_accuracy'],
+                                 'hparam/avg_f1': result_summary['avg_stats']['avg_f1']
+                                 })

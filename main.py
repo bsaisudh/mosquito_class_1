@@ -16,7 +16,7 @@ def arg_parser():
         [dict]: CLI args
     """
     parser = argparse.ArgumentParser(description='Proxemo Runner')
-    parser.add_argument('--settings', type=str, default='vgg16', metavar='s',
+    parser.add_argument('--settings', type=str, default='vgg11', metavar='s',
                         help='config file for running the network.')
     cli_args = parser.parse_args()
 
