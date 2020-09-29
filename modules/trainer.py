@@ -232,7 +232,6 @@ class Trainer():
         loss_value = []
         result_frag = []
         label_frag = []
-        group_frag = []
         self.summary_statistics.reset()
         running_loss = 0.0
         running_corrects = 0
@@ -262,8 +261,8 @@ class Trainer():
             running_loss += loss.item() * inputs.size(0)
             running_corrects += torch.sum(preds == labels.data)
 
-        epoch_loss = running_loss / len(self.loader.test_dataloader)
-        epoch_acc = running_corrects.double() / len(self.loader.test_dataloader)
+        epoch_loss = running_loss / len(self.loader.test_dataloader.dataset)
+        epoch_acc = running_corrects.double() / len(self.loader.test_dataloader.dataset)
 
         print("-"*20)
         log_text = 'Test - Loss: {:.4f}, Acc: {:.4f}'.format(

@@ -1,8 +1,8 @@
 GENERAL:
-  MODE: "Train"
+  MODE: "Test"
   OUT_PATH: "output"
   DEVICE: "cuda:0" #cpu
-  COMMENT: "Test"
+  COMMENT: "vgg11_run1_test"
 
 
 MODEL: 
@@ -22,4 +22,4 @@ TRAIN_PARAM:
   LR: 0.00001
   LR_DECAY: 0.75
   STEP_SIZE: 15
-  PRETRAIN_MODEL: ""
+  PRETRAIN_MODEL: "bkp/run3/28-09-2020-19-10-42_vgg11_run1/checkpoint/model_24_best_1.0.pth"
