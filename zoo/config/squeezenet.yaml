@@ -2,7 +2,7 @@ GENERAL:
   MODE: "Train"
   OUT_PATH: "output"
   DEVICE: "cuda:0" #cpu
-  COMMENT: "Test"
+  COMMENT: "run1_squeezenet"
 
 
 MODEL: 
@@ -21,5 +21,6 @@ TRAIN_PARAM:
   TEST_INTERVAL: 10
   LR: 0.00001
   LR_DECAY: 0.75
+  WT_DECAY: 0.0
   STEP_SIZE: 15
   PRETRAIN_MODEL: ""

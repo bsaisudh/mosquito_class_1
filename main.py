@@ -16,7 +16,7 @@ def arg_parser():
         [dict]: CLI args
     """
     parser = argparse.ArgumentParser(description='Proxemo Runner')
-    parser.add_argument('--settings', type=str, default='vgg11', metavar='s',
+    parser.add_argument('--settings', type=str, default='vgg16', metavar='s',
                         help='config file for running the network.')
     cli_args = parser.parse_args()
 
@@ -41,7 +41,7 @@ def main():
         model.train()
 
     elif args['GENERAL']['MODE'] == 'Test':
-        model.test()
+        model.test(log_image=True)
 
 
 if __name__ == '__main__':

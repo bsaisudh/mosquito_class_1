@@ -21,5 +21,6 @@ TRAIN_PARAM:
   TEST_INTERVAL: 10
   LR: 0.00001
   LR_DECAY: 0.75
+  WT_DECAY: 0.0
   STEP_SIZE: 15
   PRETRAIN_MODEL: "bkp/run3/28-09-2020-19-10-42_vgg11_run1/checkpoint/model_24_best_1.0.pth"

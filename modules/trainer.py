@@ -67,7 +67,8 @@ class Trainer():
     def init_train_patameters(self):
         self.num_epochs = self.train_args["EPOCH"]
         self.optimizer = optim.Adam(self.model.parameters(),
-                                    lr=self.train_args["LR"])
+                                    lr=self.train_args["LR"],
+                                    weight_decay=self.train_args["WT_DECAY"])
         # Decay LR by a factor of 0.75 every 15 epochs
         self.scheduler = lr_scheduler.StepLR(
             self.optimizer,
@@ -108,7 +109,18 @@ class Trainer():
                 # self.epoch_info['mean_loss'] = checkpoint['loss_value']
                 self.loss = checkpoint['loss']
             except:
-                self.model.load_state_dict(checkpoint, strict=True)
+                try:
+                    self.model.load_state_dict(checkpoint, strict=True)
+                except:
+                    d_new = dict()
+                    for key, val in checkpoint.items():
+                        d_new[".".join((key.split(".")[1:]))] = val
+                    self.model.load_state_dict(d_new, strict=True)
+            if self.train_args["LR"] > 0:
+                for param_group in self.optimizer.param_groups:
+                    # Current learning rate ...
+                    param_group['lr'] = self.train_args["LR"]
+                    print("Reset lr to ", param_group['lr'])
             print("loaded model : ", self.train_args["PRETRAIN_MODEL"])
 
     def train(self):
@@ -213,7 +225,7 @@ class Trainer():
             if epoch_val > self.best_acc:
                 self.best_acc = epoch_val
                 self.best_model_wts = copy.deepcopy(self.model.state_dict())
-                self.save_model(f"_best_{self.best_acc}")
+                self.save_model(f"_best_{self.best_acc:0.5}")
             log_text = "Epoch {} accuracy : {}".format(self.epoch, epoch_val)
             print(log_text)
             self.writer.add_scalar(f'Epoch/Accuracy', epoch_val, self.epoch)
@@ -226,9 +238,10 @@ class Trainer():
         print(log_text)
 
         self.model.load_state_dict(self.best_model_wts)
+        self.save_model("Train_end")
         return self.model
 
-    def per_test(self):
+    def per_test(self, log_image=False):
         loss_value = []
         result_frag = []
         label_frag = []
@@ -274,7 +287,7 @@ class Trainer():
         self.writer.add_scalar(
             'Test/Accuracy', epoch_acc, self.epoch)
 
-    def test(self):
+    def test(self, log_image=False):
         self.per_test()
 
         result_summary = self.summary_statistics.get_metrics()
@@ -297,7 +310,8 @@ class Trainer():
 
         self.writer.add_hparams({'lr': self.train_args["LR"],
                                  'bsize': self.data_args["BATCH_SIZE"],
-                                 'lr_decay': self.train_args['LR_DECAY']
+                                 'lr_decay': self.train_args['LR_DECAY'],
+                                 'wt_decay': self.train_args['WT_DECAY']
                                  },
                                 {'hparam/avg_precision': result_summary['avg_stats']['avg_precision'],
                                  'hparam/avg_recall': result_summary['avg_stats']['avg_recall'],
