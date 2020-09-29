@@ -1,3 +1,14 @@
+# Classes
+
+```text
+ 0 : 'aedes_aegypti'
+ 1 : 'aedes_albopictus'
+ 2 : 'anopheles_funestus'
+ 3 : 'anopheles_gambiae'
+ 4 : 'culex_erraticus'
+ 5 : 'culex_pipiens'
+```
+
 # Resullts
 
 ## Run 1

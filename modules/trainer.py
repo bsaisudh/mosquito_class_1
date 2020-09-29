@@ -273,6 +273,15 @@ class Trainer():
 
             running_loss += loss.item() * inputs.size(0)
             running_corrects += torch.sum(preds == labels.data)
+            
+            # log mis predictions
+            if log_image:
+                for idx, correct in enumerate((preds == labels.data)):
+                    if not(correct):
+                        p = self.loader.class_names[preds[idx]]
+                        l = self.loader.class_names[labels.data[idx]]
+                        tag = f"{idx} : predicted {l} as {p}"
+                        self.writer.add_image(tag, inputs.data[idx], 0)
 
         epoch_loss = running_loss / len(self.loader.test_dataloader.dataset)
         epoch_acc = running_corrects.double() / len(self.loader.test_dataloader.dataset)
@@ -288,7 +297,7 @@ class Trainer():
             'Test/Accuracy', epoch_acc, self.epoch)
 
     def test(self, log_image=False):
-        self.per_test()
+        self.per_test(log_image)
 
         result_summary = self.summary_statistics.get_metrics()
 
