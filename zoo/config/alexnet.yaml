@@ -1,8 +1,8 @@
 GENERAL:
-  MODE: "Train"
+  MODE: "Test"
   OUT_PATH: "output"
   DEVICE: "cuda:0" #cpu
-  COMMENT: "Test"
+  COMMENT: "run4p1_alexnet_wtdecay_0p05_test"
 
 
 MODEL: 
@@ -23,4 +23,4 @@ TRAIN_PARAM:
   LR_DECAY: 0.75
   WT_DECAY: 0.0
   STEP_SIZE: 15
-  PRETRAIN_MODEL: ""
+  PRETRAIN_MODEL: "bkp/run4p1_alexnet_wtdecay_0p05/checkpoint/model_92_best_0.94568.pth"
